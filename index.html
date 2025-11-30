@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleComm Nexus v4.5 - Final</title>
+    
+    <!-- Framework CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Mapa (Leaflet) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-200 font-sans overflow-hidden">
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 bg-[url('https://media.giphy.com/media/U3qYN8S0j3bpK/giphy.gif')] bg-cover bg-center">
+        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm"></div>
+
+        <div class="relative z-10 w-full max-w-md p-8 bg-slate-900/80 border border-blue-500/30 rounded-2xl shadow-2xl backdrop-blur-xl animate-fade-in-up">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600/20 border border-blue-500 mb-4 shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                    <i class="fa-solid fa-satellite-dish text-3xl text-blue-400"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-widest font-mono">NEXUS V4.5</h1>
+                <p class="text-xs text-blue-300 mt-2 uppercase tracking-wide">Acceso Seguro de Telecomunicaciones</p>
+            </div>
+
+            <form id="login-form" class="space-y-5">
+                <div class="group">
+                    <label class="block text-xs font-mono text-slate-400 mb-1 ml-1">IDENTIFICADOR</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-slate-500 group-focus-within:text-blue-400 transition-colors"></i>
+                        <input type="text" id="username" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-blue-500 transition-all" placeholder="admin" value="admin">
+                    </div>
+                </div>
+
+                <div class="group">
+                    <label class="block text-xs font-mono text-slate-400 mb-1 ml-1">CLAVE</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-3 top-3 text-slate-500 group-focus-within:text-blue-400 transition-colors"></i>
+                        <input type="password" id="password" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-blue-500 transition-all" placeholder="••••" value="1234">
+                    </div>
+                </div>
+
+                <!-- CAPTCHA -->
+                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-slate-400"></i>
+                        <span class="text-xs text-slate-400 font-mono">Captcha:</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="captcha-question" class="font-bold text-white font-mono text-lg tracking-wider bg-slate-700 px-2 rounded select-none">? + ?</span>
+                        <span class="text-slate-400">=</span>
+                        <input type="number" id="captcha-input" class="w-16 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-center text-white font-bold focus:border-blue-400 focus:outline-none" placeholder="?">
+                    </div>
+                </div>
+
+                <div id="login-error" class="hidden text-center text-xs text-red-400 bg-red-900/20 p-2 rounded border border-red-900/50 font-mono">
+                    <i class="fa-solid fa-circle-xmark mr-1"></i> Datos incorrectos
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> ENTRAR AL SISTEMA
+                </button>
+            </form>
+
+            <div class="mt-6 flex justify-between items-center border-t border-slate-800 pt-4">
+                <p class="text-[10px] text-slate-500 font-mono">Usuario: admin / 1234</p>
+                <div class="text-[10px] text-emerald-500 font-mono bg-emerald-900/20 px-2 py-1 rounded border border-emerald-900/50">
+                    <i class="fa-solid fa-eye mr-1"></i> Visita N° <span id="login-visits">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD PRINCIPAL -->
+    <div id="app-dashboard" class="hidden flex-col h-screen p-4 md:p-6 opacity-0 transition-opacity duration-1000">
+        
+        <!-- HEADER -->
+        <header class="mb-6 border-b border-slate-800 pb-4 bg-slate-900/50 p-4 rounded-xl backdrop-blur-md flex-shrink-0">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="bg-blue-600/20 p-3 rounded-lg border border-blue-500/50 relative z-10">
+                        <i class="fa-solid fa-globe text-blue-400 text-2xl animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-widest font-mono">NEXUS V4.5</h1>
+                        <div class="flex items-center gap-2 text-[10px] text-emerald-400 uppercase font-mono">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                            <span>Red Global Conectada</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 text-xs font-mono w-full md:w-auto">
+                    <div class="bg-slate-800 p-2 rounded border border-slate-700">
+                        <span class="block text-slate-500 text-[10px] uppercase">IP Pública</span>
+                        <span id="net-ip" class="text-white font-bold tracking-wider">...</span>
+                    </div>
+                    <div class="bg-slate-800 p-2 rounded border border-slate-700">
+                        <span class="block text-slate-500 text-[10px] uppercase">ISP Proveedor</span>
+                        <span id="net-isp" class="text-blue-300 font-bold">...</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+            
+            <!-- CONTROLES -->
+            <div class="lg:col-span-3 space-y-4 flex flex-col h-full overflow-hidden">
+                <div class="tech-card p-4 space-y-4 flex-shrink-0">
+                    <div class="border-l-4 border-emerald-500 pl-3">
+                        <h3 class="font-bold text-white text-sm uppercase">Mi Ubicación</h3>
+                    </div>
+                    
+                    <!-- BOTÓN GPS MEJORADO -->
+                    <button id="btn-gps" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded shadow-lg transition-all flex items-center justify-center gap-2 text-sm group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <i class="fa-solid fa-location-arrow group-hover:scale-110 transition-transform"></i>
+                        UBÍCAME AHORA
+                    </button>
+                    <p id="gps-status" class="text-[10px] text-center text-slate-500 font-mono">Click para centrar mapa en ti</p>
+                </div>
+
+                <div class="tech-card flex-1 flex flex-col min-h-0">
+                    <div class="p-3 border-b border-slate-800 bg-slate-900/50">
+                        <h3 class="font-bold text-slate-400 text-xs uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-list-check"></i> Accesos Rápidos
+                        </h3>
+                    </div>
+                    <div class="p-2 space-y-1 overflow-y-auto custom-scroll flex-1" id="location-list">
+                        <!-- JS inyecta botones -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAPA Y PANELES -->
+            <div class="lg:col-span-9 flex flex-col gap-4 h-full overflow-hidden">
+                
+                <!-- MAPA -->
+                <div class="tech-card relative flex-1 min-h-[300px] overflow-hidden group border-blue-500/30">
+                    <div id="map" class="w-full h-full bg-slate-950 cursor-crosshair z-0"></div>
+                    <div class="absolute bottom-4 right-4 bg-slate-900/80 px-2 py-1 rounded text-[10px] text-slate-400 pointer-events-none border border-slate-700">
+                        LAT: <span id="live-lat">--</span> | LON: <span id="live-lon">--</span>
+                    </div>
+                </div>
+
+                <!-- PANELES INFORMATIVOS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-shrink-0">
+                    
+                    <!-- IDENTIFICACIÓN -->
+                    <div class="tech-card p-4 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-3 opacity-10">
+                            <i class="fa-solid fa-passport text-6xl text-white"></i>
+                        </div>
+                        <h4 class="text-[10px] font-bold text-blue-400 uppercase mb-2">Zona Detectada</h4>
+                        <div class="space-y-1 relative z-10">
+                            <div class="flex items-center gap-2 mb-2">
+                                <img id="detail-flag" src="" class="w-8 h-5 object-cover rounded shadow hidden">
+                                <span id="detail-country" class="text-sm font-bold text-white truncate">ESPERANDO DATOS...</span>
+                            </div>
+                            <div class="text-xs text-slate-400 font-mono border-t border-slate-800 pt-2">
+                                <p>CIUDAD: <span id="detail-city" class="text-slate-200">--</span></p>
+                                <p>ESTADO: <span id="detail-state" class="text-slate-200">--</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LATENCIA -->
+                    <div class="tech-card p-4 flex flex-col justify-center font-mono relative overflow-hidden">
+                        <div id="high-ping-alert" class="absolute inset-0 bg-red-500/10 hidden animate-pulse"></div>
+                        <h4 class="text-[10px] font-bold text-yellow-400 uppercase mb-3 flex justify-between">
+                            <span>Latencia Estimada</span>
+                            <i class="fa-solid fa-tower-broadcast"></i>
+                        </h4>
+                        <div class="space-y-2 relative z-10">
+                            <div class="flex justify-between items-end border-b border-slate-800 pb-1">
+                                <span class="text-xs text-slate-500">DISTANCIA</span>
+                                <span id="net-distance" class="text-white font-bold">0 km</span>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <span class="text-xs text-slate-500">PING</span>
+                                <span id="target-ping" class="text-2xl font-bold text-emerald-400">-- ms</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+                                <div id="ping-bar" class="bg-emerald-500 h-full w-0 transition-all duration-1000"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CLIMA -->
+                    <div class="tech-card p-4 relative">
+                        <h4 class="text-[10px] font-bold text-purple-400 uppercase mb-2">Clima en Zona</h4>
+                        <div class="flex items-center justify-between mt-4">
+                            <div>
+                                <span id="temp-display" class="text-4xl font-bold text-white">--°</span>
+                                <div class="flex items-center gap-1 text-[10px] text-slate-400 mt-1 uppercase">
+                                    <span id="weather-desc">--</span>
+                                </div>
+                            </div>
+                            <i id="weather-icon" class="fa-solid fa-cloud text-4xl text-slate-600"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-4 border-t border-slate-800 pt-2 flex justify-between items-center flex-shrink-0">
+            <p class="text-[10px] text-slate-600 font-mono">TELECOMM SYSTEM | SECURE CONNECTION</p>
+            <div class="text-[10px] text-slate-500 font-mono flex items-center gap-2">
+                <i class="fa-solid fa-user-clock"></i>
+                Total Accesos: <span id="footer-visits" class="text-white font-bold">0</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="j.js"></script>
+</body>
+</html>
