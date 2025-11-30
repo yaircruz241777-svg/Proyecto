@@ -1,7 +1,9 @@
-/* Fuentes Tech */
+/* [TELECOM] @import: Petición HTTP GET al servidor de Google Fonts. 
+   Es un ejemplo de dependencia de recursos externos en la red. */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
 
 body { font-family: 'Inter', sans-serif; }
+/* Fuente 'monospace' usada comúnmente en terminales de configuración de Routers/Switches */
 .font-mono { font-family: 'JetBrains Mono', monospace; }
 
 /* Animaciones */
@@ -39,6 +41,7 @@ body { font-family: 'Inter', sans-serif; }
 
 /* Mapa */
 #map { z-index: 1; background: #020617; }
+/* Filtros visuales para simular interfaz de monitoreo de red */
 .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(90%); }
 .leaflet-marker-icon, .leaflet-popup-content-wrapper, .leaflet-marker-shadow { filter: none !important; }
 

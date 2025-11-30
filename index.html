@@ -5,22 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoSocialData</title>
     
-    <!-- Framework CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Mapa (Leaflet) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Estilos -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-200 font-sans overflow-hidden">
 
-    <!-- PANTALLA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 bg-[url('https://media.giphy.com/media/U3qYN8S0j3bpK/giphy.gif')] bg-cover bg-center">
         <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm"></div>
 
@@ -51,7 +46,6 @@
                     </div>
                 </div>
 
-                <!-- CAPTCHA -->
                 <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-shield-halved text-slate-400"></i>
@@ -82,10 +76,8 @@
         </div>
     </div>
 
-    <!-- DASHBOARD PRINCIPAL -->
     <div id="app-dashboard" class="hidden flex-col h-screen p-4 md:p-6 opacity-0 transition-opacity duration-1000">
         
-        <!-- HEADER -->
         <header class="mb-6 border-b border-slate-800 pb-4 bg-slate-900/50 p-4 rounded-xl backdrop-blur-md flex-shrink-0">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
@@ -114,17 +106,14 @@
             </div>
         </header>
 
-        <!-- CONTENIDO -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
             
-            <!-- CONTROLES -->
             <div class="lg:col-span-3 space-y-4 flex flex-col h-full overflow-hidden">
                 <div class="tech-card p-4 space-y-4 flex-shrink-0">
                     <div class="border-l-4 border-emerald-500 pl-3">
                         <h3 class="font-bold text-white text-sm uppercase">Mi Ubicación</h3>
                     </div>
                     
-                    <!-- BOTÓN GPS MEJORADO -->
                     <button id="btn-gps" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded shadow-lg transition-all flex items-center justify-center gap-2 text-sm group relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         <i class="fa-solid fa-location-arrow group-hover:scale-110 transition-transform"></i>
@@ -140,15 +129,12 @@
                         </h3>
                     </div>
                     <div class="p-2 space-y-1 overflow-y-auto custom-scroll flex-1" id="location-list">
-                        <!-- JS inyecta botones -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
-            <!-- MAPA Y PANELES -->
             <div class="lg:col-span-9 flex flex-col gap-4 h-full overflow-hidden">
                 
-                <!-- MAPA -->
                 <div class="tech-card relative flex-1 min-h-[300px] overflow-hidden group border-blue-500/30">
                     <div id="map" class="w-full h-full bg-slate-950 cursor-crosshair z-0"></div>
                     <div class="absolute bottom-4 right-4 bg-slate-900/80 px-2 py-1 rounded text-[10px] text-slate-400 pointer-events-none border border-slate-700">
@@ -156,10 +142,8 @@
                     </div>
                 </div>
 
-                <!-- PANELES INFORMATIVOS -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-shrink-0">
                     
-                    <!-- IDENTIFICACIÓN -->
                     <div class="tech-card p-4 relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-3 opacity-10">
                             <i class="fa-solid fa-passport text-6xl text-white"></i>
@@ -177,7 +161,6 @@
                         </div>
                     </div>
 
-                    <!-- LATENCIA -->
                     <div class="tech-card p-4 flex flex-col justify-center font-mono relative overflow-hidden">
                         <div id="high-ping-alert" class="absolute inset-0 bg-red-500/10 hidden animate-pulse"></div>
                         <h4 class="text-[10px] font-bold text-yellow-400 uppercase mb-3 flex justify-between">
@@ -199,7 +182,6 @@
                         </div>
                     </div>
 
-                    <!-- CLIMA -->
                     <div class="tech-card p-4 relative">
                         <h4 class="text-[10px] font-bold text-purple-400 uppercase mb-2">Clima en Zona</h4>
                         <div class="flex items-center justify-between mt-4">

@@ -79,7 +79,7 @@ function unlockDashboard() {
 // --- SISTEMA ---
 function initSystem() {
     initMap();
-    fetchUserISP();
+    fetchUserISP(); // [TELECOM] Inicia la detección de red (ISP/IP)
     renderQuickLocations();
     
     // Evento del botón GPS corregido
@@ -87,6 +87,7 @@ function initSystem() {
 }
 
 function initMap() {
+    // [API] Leaflet hace peticiones a 'cartocdn.com' (Servidor de mapas) para obtener las imágenes (tiles)
     map = L.map('map', { zoomControl: false, attributionControl: false })
            .setView([userCoords.lat, userCoords.lng], 4);
 
@@ -124,15 +125,18 @@ function analyzeTarget(lat, lng) {
     marker.setLatLng([lat, lng]);
     
     // 2. Calcular Distancia
+    // [TELECOM] El cálculo de distancia es vital para estimar la atenuación de señal y latencia en enlaces físicos
     const km = getDist(userCoords.lat, userCoords.lng, lat, lng);
     document.getElementById('net-distance').innerText = `${km.toFixed(0)} km`;
 
     // 3. Ping
+    // [TELECOM] Simulación de PING (Latencia): El tiempo que tarda un paquete en ir y volver.
+    // Depende directamente de la distancia física en fibra óptica + saltos entre routers.
     let p = (km * 2) / 100 + 10; 
     if(!isUserLocated) p += 50; // Penalización por no tener GPS preciso
     updatePing(Math.round(p));
 
-    // 4. APIs Externas
+    // 4. APIs Externas (Consumo de servicios remotos)
     fetchGeo(lat, lng);
     fetchWeather(lat, lng);
 }
@@ -143,6 +147,9 @@ function activateGPS() {
     status.innerText = "Sintonizando satélites...";
     status.className = "text-[10px] text-center text-blue-400 font-mono animate-pulse";
 
+    // [TELECOM] API de Geolocalización:
+    // Accede a la capa física del dispositivo (Chip GPS, Antena WiFi o Modem Celular)
+    // para triangular la posición exacta con satélites o torres de telefonía.
     if (!navigator.geolocation) {
         status.innerText = "Error: Navegador incompatible";
         return;
@@ -187,6 +194,9 @@ function activateGPS() {
 // --- APIs AUXILIARES ---
 async function fetchUserISP() {
     try {
+        // [API] Petición GET a 'ipapi.co'. 
+        // [TELECOM] Permite obtener la dirección IP Pública (identificador único en Internet) 
+        // y el ISP (Proveedor de Servicios de Internet) asignado al router.
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
         document.getElementById('net-ip').innerText = data.ip || "Oculta";
@@ -197,6 +207,8 @@ async function fetchUserISP() {
 async function fetchGeo(lat, lng) {
     document.getElementById('detail-country').innerText = "ESCANEANDO...";
     try {
+        // [API] Geocodificación Inversa: Convierte coordenadas (capa física) en direcciones humanas (capa de aplicación)
+        // usando el servidor de OpenStreetMap.
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`);
         const data = await res.json();
         const a = data.address;
@@ -206,6 +218,7 @@ async function fetchGeo(lat, lng) {
         document.getElementById('detail-country').innerText = (a.country || "Desconocido").toUpperCase();
         
         if(a.country_code) {
+            // [API] Petición encadenada para obtener la bandera
             const r = await fetch(`https://restcountries.com/v3.1/alpha/${a.country_code}`);
             const d = await r.json();
             const flag = document.getElementById('detail-flag');
@@ -220,6 +233,7 @@ async function fetchGeo(lat, lng) {
 
 async function fetchWeather(lat, lng) {
     try {
+        // [API] Open-Meteo: Transfiere datos de sensores remotos (clima) al cliente web.
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
         const data = await res.json();
         const w = data.current_weather;
@@ -240,12 +254,17 @@ function updatePing(ms) {
     const txt = document.getElementById('target-ping');
     txt.innerText = `${ms} ms`;
     
+    // [TELECOM] Representación de QoS (Calidad de Servicio).
+    // Menor latencia (verde) = mejor comunicación en tiempo real.
     if(ms < 60) { txt.className="text-2xl font-bold text-emerald-400"; bar.className="bg-emerald-500 h-full transition-all duration-1000"; bar.style.width="95%"; }
     else if(ms < 150) { txt.className="text-2xl font-bold text-yellow-400"; bar.className="bg-yellow-500 h-full transition-all duration-1000"; bar.style.width="60%"; }
     else { txt.className="text-2xl font-bold text-red-500"; bar.className="bg-red-600 h-full transition-all duration-1000"; bar.style.width="30%"; }
 }
 
 function getDist(lat1, lon1, lat2, lon2) {
+    // [TELECOM / MATEMÁTICAS] Fórmula del Haversine.
+    // Calcula la distancia ortodrómica (línea más corta sobre una esfera) entre dos puntos.
+    // Esencial para calcular coberturas de antenas y longitud de cableado submarino/terrestre.
     const R = 6371; 
     const dLat = (lat2-lat1) * Math.PI/180;
     const dLon = (lon2-lon1) * Math.PI/180;
